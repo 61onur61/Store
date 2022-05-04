@@ -1,4 +1,5 @@
 import { Avatar, Button, Card, CardActionArea, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Product } from "../../app/models/Product";
 
 interface Props {
@@ -6,6 +7,8 @@ interface Props {
 }
 
 export default function ProductCard({product} : Props){
+  let navigate = useNavigate();
+  let location = useLocation();
     return(
       <Card>
         <CardHeader 
@@ -34,7 +37,11 @@ export default function ProductCard({product} : Props){
         </CardContent>
         <CardActions>
           <Button size="small">Add To Card</Button>
-          <Button size="small">View</Button>
+          <Button 
+           onClick={() => {
+            navigate(`/catalog/${product.id}` + location.search);
+          }}
+           size="small">View</Button>
         </CardActions>
       </Card>
     )

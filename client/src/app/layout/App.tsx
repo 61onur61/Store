@@ -1,5 +1,5 @@
 import { Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import AboutPage from "../../features/about/AboutPage";
@@ -11,8 +11,30 @@ import Header from "./Header";
 import 'react-toastify/dist/ReactToastify.css';
 import ServerError from "../errors/ServerError";
 import NotFound from "../errors/NotFound";
+import BasketPage from "../../features/basket/BasketPage";
+import { useStoreContext } from "../../context/StoreContext";
+import { getCookie } from "../util/util";
+import agent from "../api/agent";
+import Loading from "./Loading";
+import CheckoutPage from "../../features/checkout/CheckoutPage";
 
 function App() {
+
+  const {setBasket} = useStoreContext();
+  const [loading,setLoading] = useState(true);
+
+  useEffect(() => {
+    const buyerId = getCookie('buyerId');
+    if(buyerId){
+      agent.Basket.get()
+        .then(basket => setBasket(basket))
+        .catch(error => console.log(error))
+        .finally(() => setLoading(false))
+    } else{
+      setLoading(false);
+    }
+  }, [setBasket])
+
   const [darkMode, setDarkMode] = useState(false);
   const paletteType = darkMode ? 'dark' : 'light';
   const theme = createTheme({
@@ -27,6 +49,8 @@ function App() {
   function handleThemeChange(){
     setDarkMode(!darkMode);
   }
+
+  if(loading) return <Loading message="Initialising App..." />
 
   return (
     <ThemeProvider theme={theme}>
@@ -52,6 +76,8 @@ function App() {
           <Route path='/about' element={<AboutPage />} />
           <Route path='/contact' element={<ContactPage />} />
           <Route path='/server-error' element={<ServerError />} />
+          <Route path='/basket' element={<BasketPage />} />
+          <Route path='/checkout' element={<CheckoutPage />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </Container>
